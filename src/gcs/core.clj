@@ -20,18 +20,18 @@
     (reset! service new-service)
     true))
 
-(defn get-blob [bucket blob-id]
-  (.get @service (BlobId/of bucket blob-id)))
+(defn get-object [bucket object-name]
+  (.get @service (BlobId/of bucket object-name)))
 
-(defn create-blob [bucket blob-id content]
-  (let [blob-info (.build (BlobInfo/newBuilder bucket blob-id))]
+(defn create-object [bucket object-name content]
+  (let [blob-info (.build (BlobInfo/newBuilder bucket object-name))]
     (.create @service
              blob-info
              (if (string? content) (.getBytes content) content)
              (empty-varargs (if (string? content) Storage$BlobTargetOption Storage$BlobWriteOption)))))
 
-(defn create-gzipped-blob [bucket blob-id content content-type]
-  (let [blob-info (-> (BlobInfo/newBuilder bucket blob-id)
+(defn create-gzipped-object [bucket object-name content content-type]
+  (let [blob-info (-> (BlobInfo/newBuilder bucket object-name)
                       (.setContentEncoding "gzip")
                       (.setContentType content-type)
                       .build)
