@@ -24,6 +24,19 @@
       (.setStorageClass (:storage-class blob-info))
       .build))
 
+(defn new-bucket-info [bucket-info]
+  (-> (BucketInfo/newBuilder (:name bucket-info))
+      (.setAcl (:acl bucket-info))
+      (.setCors (:cors bucket-info))
+      (.setDefaultAcl (:default-acl bucket-info))
+      (.setDeleteRules (:delete-rules bucket-info))
+      (.setIndexPage (:index-page bucket-info))
+      (.setLocation (:location bucket-info))
+      (.setNotFoundPage (:not-found-page bucket-info))
+      (.setStorageClass (:storage-class bucket-info))
+      (.setVersioningEnabled (:versioning-enabled bucket-info))
+      .build))
+
 (defn initialize [project-id credentials-filename]
   (let [creds (ServiceAccountCredentials/fromStream (io/input-stream (io/resource credentials-filename)))
         new-service (-> (StorageOptions/newBuilder)
@@ -50,9 +63,6 @@
       content
       (empty-varargs options-class)))))
 
-(defn create-public-bucket [bucket-name]
-  (let [public-acl acl/public-read
-        bucket-info (-> (BucketInfo/newBuilder bucket-name)
-                        (.setDefaultAcl [public-acl])
-                        .build)]
+(defn create-bucket [arg]
+  (let [bucket-info (if (string? arg) (.build (BucketInfo/newBuilder arg)) (new-bucket-info arg))]
     (.create @service bucket-info (empty-varargs Storage$BucketTargetOption))))
