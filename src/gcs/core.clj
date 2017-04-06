@@ -1,6 +1,6 @@
 (ns gcs.core
   (:require [clojure.java.io :as io])
-  (:import [com.google.cloud.storage BlobId BlobInfo BucketInfo Storage Storage$BlobTargetOption Storage$BlobWriteOption StorageOptions]
+  (:import [com.google.cloud.storage Acl Acl$User Acl$Role BlobId BlobInfo BucketInfo Storage Storage$BlobTargetOption Storage$BlobWriteOption Storage$BucketTargetOption StorageOptions]
            com.google.auth.oauth2.ServiceAccountCredentials
            java.util.zip.GZIPOutputStream))
 
@@ -46,3 +46,10 @@
              blob-info
              gzipped-content
              (empty-varargs Storage$BlobTargetOption))))
+
+(defn create-public-bucket [bucket-name]
+  (let [public-acl (Acl/of (Acl$User/ofAllUsers) Acl$Role/READER)
+        bucket-info (-> (BucketInfo/newBuilder bucket-name)
+                        (.setDefaultAcl [public-acl])
+                        .build)]
+    (.create @service bucket-info (empty-varargs Storage$BucketTargetOption))))
