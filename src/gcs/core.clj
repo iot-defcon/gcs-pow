@@ -1,21 +1,14 @@
 (ns gcs.core
   (:require [clojure.java.io :as io]
-            [gcs.acl :as acl])
+            [gcs.acl :as acl]
+            [gcs.utils :as utils])
   (:import [com.google.cloud.storage Acl Acl$User Acl$Role BlobId BlobInfo BucketInfo Storage Storage$BlobTargetOption Storage$BlobWriteOption Storage$BucketTargetOption StorageOptions]
-           com.google.auth.oauth2.ServiceAccountCredentials
-           java.util.zip.GZIPOutputStream))
+           com.google.auth.oauth2.ServiceAccountCredentials))
 
 (def service (atom nil))
 
 (defn empty-varargs [klass]
   (into-array klass []))
-
-(defn gzip-compress [content]
-  (let [baos (java.io.ByteArrayOutputStream.)
-        gzip (GZIPOutputStream. baos)]
-    (.write gzip (.getBytes content "UTF-8"))
-    (.close gzip)
-    (.toByteArray baos)))
 
 (defn initialize [project-id credentials-filename]
   (let [creds (ServiceAccountCredentials/fromStream (io/input-stream (io/resource credentials-filename)))
@@ -42,7 +35,7 @@
                       (.setContentEncoding "gzip")
                       (.setContentType content-type)
                       .build)
-        gzipped-content (gzip-compress (if (string? content) content (slurp content)))]
+        gzipped-content (utils/gzip-compress (if (string? content) content (slurp content)))]
     (.create @service
              blob-info
              gzipped-content
