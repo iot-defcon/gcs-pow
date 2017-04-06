@@ -1,9 +1,8 @@
 (ns gcs.core
   (:require [clojure.java.io :as io]
-            [gcs.acl :as acl]
             [gcs.utils :as utils])
-  (:import [com.google.cloud.storage Acl Acl$User Acl$Role BlobId BlobInfo BucketInfo Storage Storage$BlobTargetOption Storage$BlobWriteOption Storage$BucketTargetOption StorageOptions]
-           com.google.auth.oauth2.ServiceAccountCredentials))
+  (:import com.google.auth.oauth2.ServiceAccountCredentials
+           [com.google.cloud.storage BlobId BlobInfo BucketInfo Storage StorageOptions]))
 
 (def service (atom nil))
 
