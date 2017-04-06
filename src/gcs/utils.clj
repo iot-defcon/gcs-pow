@@ -7,3 +7,9 @@
     (.write gzip (.getBytes content "UTF-8"))
     (.close gzip)
     (.toByteArray baos)))
+
+(defn bytes? [x]
+  (if (nil? x)
+    false
+    (= (Class/forName "[B")
+       (.getClass x))))

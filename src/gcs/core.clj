@@ -10,6 +10,20 @@
 (defn empty-varargs [klass]
   (into-array klass []))
 
+(defn new-blob-info [blob-info]
+  (-> (BlobInfo/newBuilder (:bucket blob-info) (:blob-id blob-info))
+      (.setAcl (:acl blob-info))
+      (.setCacheControl (:cache-control blob-info))
+      (.setContentDisposition (:content-disposition blob-info))
+      (.setContentEncoding (:content-encoding blob-info))
+      (.setContentLanguage (:content-language blob-info))
+      (.setContentType (:content-type blob-info))
+      (.setCrc32c (:crc32c blob-info))
+      (.setMd5 (:md5 blob-info))
+      (.setMetadata (:metadata blob-info))
+      (.setStorageClass (:storage-class blob-info))
+      .build))
+
 (defn initialize [project-id credentials-filename]
   (let [creds (ServiceAccountCredentials/fromStream (io/input-stream (io/resource credentials-filename)))
         new-service (-> (StorageOptions/newBuilder)
@@ -23,23 +37,18 @@
 (defn get-object [bucket object-name]
   (.get @service (BlobId/of bucket object-name)))
 
-(defn create-object [bucket object-name content]
-  (let [blob-info (.build (BlobInfo/newBuilder bucket object-name))]
-    (.create @service
-             blob-info
-             (if (string? content) (.getBytes content) content)
-             (empty-varargs (if (string? content) Storage$BlobTargetOption Storage$BlobWriteOption)))))
+(defn create-object
+  ([bucket object-name content]
+   (create-object (.build (BlobInfo/newBuilder bucket object-name)) content))
 
-(defn create-gzipped-object [bucket object-name content content-type]
-  (let [blob-info (-> (BlobInfo/newBuilder bucket object-name)
-                      (.setContentEncoding "gzip")
-                      (.setContentType content-type)
-                      .build)
-        gzipped-content (utils/gzip-compress (if (string? content) content (slurp content)))]
-    (.create @service
-             blob-info
-             gzipped-content
-             (empty-varargs Storage$BlobTargetOption))))
+  ([blob-info content]
+   (let [content (if (string? content) (.getBytes content) content)
+         options-class (if (or (string? content) (utils/bytes? content)) Storage$BlobTargetOption Storage$BlobWriteOption)]
+     (.create
+      @service
+      (new-blob-info blob-info)
+      content
+      (empty-varargs options-class)))))
 
 (defn create-public-bucket [bucket-name]
   (let [public-acl acl/public-read
