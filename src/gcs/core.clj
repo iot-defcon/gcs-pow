@@ -10,7 +10,7 @@
   (into-array klass []))
 
 (defn new-blob-info [blob-info]
-  (-> (BlobInfo/newBuilder (:bucket blob-info) (:blob-id blob-info))
+  (-> (BlobInfo/newBuilder (:bucket-name blob-info) (:blob-id blob-info))
       (.setAcl (:acl blob-info))
       (.setCacheControl (:cache-control blob-info))
       (.setContentDisposition (:content-disposition blob-info))
