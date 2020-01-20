@@ -13,6 +13,7 @@
   (-> (BlobInfo/newBuilder blob-id)
       (.setContentType "text/html")
       (.setAcl (list (Acl/of (Acl$User/ofAllUsers) Acl$Role/READER)))
+      (.setCacheControl "public, max-age=10800")
       .build))
 
 (defn -main [& _]
