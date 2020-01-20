@@ -24,10 +24,10 @@
         bucket (.get storage bucket-name (into-array Storage$BucketGetOption []))]
     (if (empty? (.getLifecycleRules bucket))
       (-> bucket
-        .toBuilder
-        (.setLifecycleRules (list delete-rule))
-        .build
-        (.update (into-array Storage$BucketTargetOption [])))
+          .toBuilder
+          (.setLifecycleRules (list delete-rule))
+          .build
+          (.update (into-array Storage$BucketTargetOption [])))
       (println "bucket has some lifecycle rules"))))
 
 (defn -main [& _]
